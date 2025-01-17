@@ -1,192 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zoomable Image Coordinate Viewer with Keyboard Controls</title>
+  <title>Zoomable Image Viewer</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    #image-container {
-      position: relative;
-      border: 2px dashed #ccc;
-      height: 500px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      background: #f9f9f9;
-    }
-    #image-container img {
-      transform-origin: top left;
-      cursor: grab;
-    }
-    #image-container img {
-      transform-origin: top left;
-      cursor: crosshair; /* Change cursor to crosshair */
-    }
-    #coordinates {
-      margin-top: 10px;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container my-5">
-    <h1 class="text-center">Zoomable Image Viewer with Keyboard Controls</h1>
-    <p class="text-center text-muted">Drag and drop or upload an image below. Use the keyboard for panning and zooming.</p>
-    <div id="image-container" class="border bg-light">
+    <h1 class="text-center">Pixel Coordinate Viewer/Selector</h1>
+    <p class="text-center text-muted">Drag and drop or upload an image. Use keyboard for controls. Right-click to copy pixel coordinates to clipboard.</p>
+    <div id="image-container" class="border bg-light-subtle">
+      <div class="spinner-overlay">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <div id="overview-thumbnail" class="position-absolute top-0 end-0 m-2 d-none"></div>
       <p class="text-muted">Drag an image here or click to upload.</p>
       <input id="image-upload" type="file" accept="image/*" class="d-none">
     </div>
-    <div id="coordinates" class="text-center text-primary fs-5"></div>
+    <div id="coordinates" class="text-center text-primary fs-5 mt-2"></div>
     <p class="text-center mt-3"><strong>Keyboard Shortcuts:</strong><br>
-      Arrow Keys: Pan | + / -: Zoom | R: Reset
+      Arrow Keys: Pan | + / -: Zoom | R: Reset | Right-click: Copy to Clipboard
     </p>
+    <button id="theme-toggle" class="btn btn-outline-secondary mt-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16"/>
+      </svg>
+      Change Theme
+    </button>
   </div>
 
-  <script>
-    const imageContainer = document.getElementById('image-container');
-    const imageUpload = document.getElementById('image-upload');
-    const coordinatesDisplay = document.getElementById('coordinates');
-    let imgElement = null;
-    let scale = 1;
-    let originX = 0;
-    let originY = 0;
-
-    // Utility function to copy text to clipboard
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert(`Copied to clipboard: ${text}`);
-      });
-    }
-
-    // Function to handle image display
-    function loadImage(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (imgElement) {
-          imgElement.remove(); // Remove any previous image
-        }
-        imgElement = document.createElement('img');
-        imgElement.src = e.target.result;
-        imgElement.alt = 'Uploaded Image';
-        imgElement.style.position = 'absolute';
-        imgElement.style.transform = `scale(${scale}) translate(${originX}px, ${originY}px)`;
-        imgElement.addEventListener('mousemove', handleMouseMove);
-        imgElement.addEventListener('contextmenu', handleRightClick);
-        imgElement.addEventListener('wheel', handleZoom);
-        imageContainer.innerHTML = ''; // Clear container
-        imageContainer.appendChild(imgElement);
-        imgElement.focus();
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // Handle drag-and-drop events
-    imageContainer.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      imageContainer.classList.add('bg-warning');
-    });
-
-    imageContainer.addEventListener('dragleave', () => {
-      imageContainer.classList.remove('bg-warning');
-    });
-
-    imageContainer.addEventListener('drop', (e) => {
-      e.preventDefault();
-      imageContainer.classList.remove('bg-warning');
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('image/')) {
-        loadImage(file);
-      } else {
-        alert('Please drop a valid image file.');
-      }
-    });
-
-    // Open file input on click
-    imageContainer.addEventListener('click', () => {
-      imageUpload.click();
-    });
-
-    // Handle file input change
-    imageUpload.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        loadImage(file);
-      }
-    });
-
-    // Mouse move event to show coordinates
-    function handleMouseMove(event) {
-      if (!imgElement) return;
-      const rect = imgElement.getBoundingClientRect();
-      const x = Math.round((event.clientX - rect.left) / scale);
-      const y = Math.round((event.clientY - rect.top) / scale);
-      coordinatesDisplay.textContent = `Coordinates: (${x}, ${y})`;
-    }
-
-    // Right-click event to copy coordinates
-    function handleRightClick(event) {
-      event.preventDefault();
-      if (!imgElement) return;
-      const rect = imgElement.getBoundingClientRect();
-      const x = Math.round((event.clientX - rect.left) / scale);
-      const y = Math.round((event.clientY - rect.top) / scale);
-      copyToClipboard(`(${x}, ${y})`);
-    }
-
-    // Handle zooming
-    function handleZoom(event) {
-      event.preventDefault();
-      const rect = imgElement.getBoundingClientRect();
-      const offsetX = (event.clientX - rect.left) / scale;
-      const offsetY = (event.clientY - rect.top) / scale;
-      scale += event.deltaY > 0 ? -0.1 : 0.1;
-      scale = Math.min(Math.max(0.1, scale), 10); // Limit zoom levels
-      originX = event.clientX - rect.left - offsetX * scale;
-      originY = event.clientY - rect.top - offsetY * scale;
-      imgElement.style.transform = `scale(${scale}) translate(${originX}px, ${originY}px)`;
-    }
-
-    // Handle keyboard controls
-    document.addEventListener('keydown', (event) => {
-      if (!imgElement) return;
-
-      const PAN_STEP = 20; // Pixels per arrow key press
-      const ZOOM_STEP = 0.1; // Zoom increment
-
-      switch (event.key) {
-        case 'ArrowUp':
-          originY -= PAN_STEP / scale;
-          break;
-        case 'ArrowDown':
-          originY += PAN_STEP / scale;
-          break;
-        case 'ArrowLeft':
-          originX -= PAN_STEP / scale;
-          break;
-        case 'ArrowRight':
-          originX += PAN_STEP / scale;
-          break;
-        case '+':
-        case '=': // Some keyboards use '=' for '+'
-          scale = Math.min(scale + ZOOM_STEP, 10);
-          break;
-        case '-':
-          scale = Math.max(scale - ZOOM_STEP, 0.1);
-          break;
-        case 'r':
-        case 'R':
-          scale = 1;
-          originX = 0;
-          originY = 0;
-          break;
-        default:
-          return; // Exit if no relevant key is pressed
-      }
-
-      imgElement.style.transform = `scale(${scale}) translate(${originX}px, ${originY}px)`;
-      event.preventDefault(); // Prevent default browser behavior
-    });
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
