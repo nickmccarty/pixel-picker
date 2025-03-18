@@ -1,57 +1,74 @@
 body {
-    font-family: 'Inconsolata', monospace;
-    color: #3bbd3b;
-  }
-  
+  font-family: 'Inconsolata', monospace;
+  color: #3bbd3b;
+}
+
 #image-container {
-    position: relative;
-    height: 500px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
-  
+  position: relative;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
 #image-container img {
-    transform-origin: top left;
-    cursor: crosshair;
-  }
-  
+  transform-origin: top left;
+  cursor: crosshair;
+}
+
 .spinner-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(255, 255, 255, 0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
 #overview-thumbnail {
-    width: 100px;
-    height: 100px;
-    border: 2px solid var(--bs-body-color);
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-    overflow: hidden;
-    z-index: 1000;
-  }
-  
+  width: 100px;
+  height: 100px;
+  border: 2px solid var(--bs-body-color);
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  overflow: hidden;
+  z-index: 1000;
+}
+
 #overview-thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .text-primary{
-    color: #3bbd3b;
-  }
+  color: #3bbd3b;
+}
 
 #theme-toggle {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-  }
-  
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+/* Guidelines styles */
+.guideline {
+  pointer-events: none;
+  z-index: 998;
+}
+
+.guideline.horizontal {
+  border-top: 1px dotted #aaaaaa;
+  width: 100%;
+  height: 1px;
+}
+
+.guideline.vertical {
+  border-left: 1px dotted #aaaaaa;
+  height: 100%;
+  width: 1px;
+}
