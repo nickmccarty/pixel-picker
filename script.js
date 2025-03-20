@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const spinnerOverlay = document.querySelector('.spinner-overlay');
   const overviewThumbnail = document.getElementById('overview-thumbnail');
   const themeToggle = document.getElementById('theme-toggle');
+  const uploadPlaceholder = document.getElementById('upload-placeholder');
 
   let imgElement = null;
   let scale = 1;
@@ -80,6 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (imgElement) {
         imgElement.remove();
       }
+      
+      // Hide the upload placeholder when an image is loaded
+      uploadPlaceholder.style.display = 'none';
+      
       imgElement = document.createElement('img');
       imgElement.src = e.target.result;
       imgElement.alt = 'Uploaded Image';
@@ -93,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
       imgElement.addEventListener('mousedown', startDrawingBox);
       imgElement.addEventListener('mouseup', finishDrawingBox);
       
-      imageContainer.innerHTML = '';
       imageContainer.appendChild(imgElement);
 
       overviewThumbnail.innerHTML = '';
@@ -306,7 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  imageContainer.addEventListener('click', () => {
+  // Instead of adding a click event to the entire container, 
+  // only add it to the upload placeholder
+  uploadPlaceholder.addEventListener('click', () => {
     imageUpload.click();
   });
 

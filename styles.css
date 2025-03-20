@@ -72,3 +72,22 @@ body {
   height: 100%;
   width: 1px;
 }
+
+/* Upload placeholder styles */
+#upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  cursor: pointer;
+}
+
+#upload-placeholder svg {
+  transition: transform 0.2s ease;
+}
+
+#upload-placeholder:hover svg {
+  transform: scale(1.1);
+  color: #3bbd3b;
+}
