@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let startY = 0;
   let currentX = 0;
   let currentY = 0;
+  let markerSvg = null;
 
   // Guidelines
   let horizontalGuideline = null;
@@ -55,6 +56,35 @@ document.addEventListener('DOMContentLoaded', () => {
       verticalGuideline.style.zIndex = '998';
       imageContainer.appendChild(verticalGuideline);
     }
+  }
+
+  function createBullseyeSVG() {
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("xmlns", svgNS);
+    svg.setAttribute("width", "16");
+    svg.setAttribute("height", "16");
+    svg.setAttribute("fill", "currentColor");
+    svg.setAttribute("class", "bi bi-bullseye");
+    svg.setAttribute("viewBox", "0 0 16 16");
+    svg.style.position = 'absolute';
+    svg.style.zIndex = '1000';
+    svg.style.pointerEvents = 'none';
+
+    const paths = [
+      "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16",
+      "M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10m0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12",
+      "M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8",
+      "M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
+    ];
+
+    paths.forEach(pathData => {
+      const path = document.createElementNS(svgNS, "path");
+      path.setAttribute("d", pathData);
+      svg.appendChild(path);
+    });
+
+    return svg;
   }
 
   function updateGuidelines(clientX, clientY) {
@@ -146,12 +176,23 @@ document.addEventListener('DOMContentLoaded', () => {
     originX = event.clientX - rect.left - offsetX * scale;
     originY = event.clientY - rect.top - offsetY * scale;
     imgElement.style.transform = `scale(${scale}) translate(${originX}px, ${originY}px)`;
+
+    // Update marker if it exists
+    if (markerSvg) {
+      updateMarkerPosition();
+    }
   }
 
   function startDrawingBox(event) {
     if (!imgElement) return;
     event.preventDefault();
     if (event.button !== 0) return;
+
+    // Remove any existing marker
+    if (markerSvg) {
+      markerSvg.remove();
+      markerSvg = null;
+    }
 
     isDrawing = true;
 
@@ -217,6 +258,17 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  function updateMarkerPosition() {
+    if (!markerSvg || !imgElement) return;
+
+    const rect = imgElement.getBoundingClientRect();
+    const centerX = (Math.min(startX, currentX) + Math.abs(currentX - startX) / 2) * scale + rect.left;
+    const centerY = (Math.min(startY, currentY) + Math.abs(currentY - startY) / 2) * scale + rect.top;
+
+    markerSvg.style.left = `${centerX - 8 - rect.left + parseFloat(getComputedStyle(imgElement).left)}px`;
+    markerSvg.style.top = `${centerY - 8 - rect.top + parseFloat(getComputedStyle(imgElement).top)}px`;
+  }
+
   function finishDrawingBox(event) {
     if (!isDrawing || !imgElement) return;
 
@@ -239,6 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     copyToClipboard(cocoFormat);
+
+    // Create and position the marker SVG
+    markerSvg = createBullseyeSVG();
+    imageContainer.appendChild(markerSvg);
+    updateMarkerPosition();
   }
 
   imageContainer.addEventListener('dragover', (e) => {
@@ -319,6 +376,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     imgElement.style.transform = `scale(${scale}) translate(${originX}px, ${originY}px)`;
+    
+    // Update marker position when zooming or panning
+    if (markerSvg) {
+      updateMarkerPosition();
+    }
+    
     event.preventDefault();
   });
 
